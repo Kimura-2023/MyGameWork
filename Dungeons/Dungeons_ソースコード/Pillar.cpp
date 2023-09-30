@@ -1,0 +1,77 @@
+// ===柱クラス実装===
+// 柱クラスを実装
+// Author:	Kimura
+// ==============================
+
+// ===インクルード===
+#include "Pillar.h"
+#include "DebugProc.h"
+#include "ModelManager.h"
+#include "ObjectManager.h"
+#include "GameManager.h"
+#include "SceneManager.h"
+#include "ShaderList.h"
+#include "TextureManager.h"
+#include "CollisionManager.h"
+
+// ===コンストラクタ===
+Pillar::Pillar() : Collision3D(this)
+{
+	// ---初期化処理---
+	m_transform.Pos = { 0,0,0 };										// 初期座標
+	m_transform.Rot = { 0,0,0 };										// 初期回転
+	m_transform.Scale = { 1,1,1 };										// 初期拡縮
+	m_id = OT_PILLAR;													// オブジェクトの型設定
+	m_bEnable = true;													// 更新・描画可否
+	m_col = true;														// 当たり判定有無
+	m_bVisible = true;													// 視認可否
+	m_ResourcePass = "data/model/Pillar.fbx";							// 素材へのパス
+	m_Model = MODEL->Load(m_ResourcePass);								// モデル読込
+	AddCollisionOBB(XMFLOAT3(0, 2.5f, 0), XMFLOAT3(0.7f, 2.5f, 0.7f));	// 当たり判定追加
+	m_bStatic = true;													// 静的オブジェクト
+
+	m_pPS = GetPS(PS_MASKOBJECT);		// ピクセルシェーダーセット
+	m_pVS = GetVS(VS_OBJECT);			// 頂点シェーダーセット
+}
+
+// ===デストラクタ===
+Pillar::~Pillar()
+{
+}
+
+// ===更新処理===
+void Pillar::Update()
+{
+	Object3DBase::Update();			// オブジェクト更新
+}
+
+// ===描画処理===
+void Pillar::Draw()
+{
+	// ---通常描画---
+	SetCullMode(CULLMODE_CCW);		// 背面カリング
+	SetTexturePS(TEX->Load("data/texture/ramp.png"), 1);		// 諧調テクスチャセット
+	Object3DBase::Draw();			// オブジェクト描画
+
+	// ---輪郭線描画---
+	SetCullMode(CULLMODE_CW);		// 前面カリング
+	m_pPS = GetPS(PS_OUTLINE);	// ピクセルシェーダーセット
+	m_pVS = GetVS(VS_OUTLINE);	// 頂点シェーダーセット
+	Object3DBase::Draw();			// 描画処理
+
+	// ---描画設定を元に戻す---
+	SetCullMode(CULLMODE_CCW);		// 背面カリング
+	m_pPS = GetPS(PS_MASKOBJECT);	// ピクセルシェーダーセット
+	m_pVS = GetVS(VS_OBJECT);		// 頂点シェーダーセット
+}
+
+// ===更新有無===
+bool Pillar::IsUpdate()
+{
+	return true;
+}
+
+// ===衝突処理===
+void Pillar::OnCollision(Object* obj)
+{
+}
